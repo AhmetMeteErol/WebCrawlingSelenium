@@ -1,0 +1,55 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# Configure the WebDriver
+options = webdriver.ChromeOptions()
+options.add_argument('--ignore-certificate-errors')
+options.add_argument('--incognito')  # Open the browser in incognito mode
+driver = webdriver.Chrome(options=options)
+
+# Navigate to the website
+driver.get('https://ranking.glassdollar.com/')
+
+# Wait for the cookies pop-up to appear
+cookies_popup = WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.XPATH, '//*[@id="st-cmp-v2"]/div/div[2]/div/div[4]/div[2]/div[1]/span/div/span'))
+)
+
+# Click the 'Accept All Cookies' button
+cookies_popup.click()
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CLASS_NAME, 'ant-row'))
+)
+
+# xpath siemens : //*[@id="root"]/div/section/section[1]/section/main/div/div/div[2]/div[2]/div[2]/div/div/div/div[1]
+# xpath daimler : //*[@id="root"]/div/section/section[1]/section/main/div/div/div[2]/div[2]/div[3]/div/div/div/div[1]
+
+#Extract the company names
+company_names =  [a.text for a in driver.find_elements(By.CLASS_NAME, 'ant-typography')][3:-7:3]
+print(company_names)
+cards=driver.find_elements(By.CLASS_NAME,"ant-row-space-between")
+companies=[]
+for i in range(len(cards)):
+    cards=driver.find_elements(By.CLASS_NAME,"ant-row-space-between")
+    cards[i].click()
+    company_name=driver.find_element(By.CLASS_NAME,"ant-typography").text
+    print(company_name)
+    img=driver.find_element(By.XPATH,"//*[@id=\"root\"]/div/section/section[1]/section/main/div/div/div[2]/div/div[1]/div/div[2]/div/img").get_attribute("src")
+    description=driver.find_element(By.CLASS_NAME,"sc-pFZIQ").text
+    location=driver.find_element(By.XPATH,"//*[@id=\"root\"]/div/section/section[1]/section/main/div/div/div[2]/div/div[3]/span").text
+    driver.find_element(By.XPATH,'//*[@id="root"]/div/section/section[1]/section/main/div/div/div[2]/div/div[4]/div/div[1]').click()
+    driver.switch_to.window(driver.window_handles[1])    
+    
+    i+=1
+    driver.back()
+
+# Extract the description
+
+logos = [a.text for a in driver.find_elements(By.XPATH, 'ant-//*[@id="root"]/div/section/section[1]/section/main/div/div/div[2]/div[2]/div[2]/div/div/div/div[1]/div[1]/img')]
+
+# Close the browser
+driver.quit()
